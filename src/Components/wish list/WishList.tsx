@@ -1,4 +1,3 @@
-import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { Box, Grid, Card, CardContent, CardMedia, Typography, Button, CircularProgress } from "@mui/material";
@@ -51,7 +50,7 @@ const removeFromWishlist = async (productId: string): Promise<void> => {
   }
 };
 
-export default function Wishlist() {
+export default function WishList() {
   const queryClient = useQueryClient();
 
   const {

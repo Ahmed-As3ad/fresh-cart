@@ -3,7 +3,6 @@ import { Box, Card, CardContent, Typography, Button, Grid, CircularProgress, Div
 import { motion } from "framer-motion";
 import { CheckCircle, Cancel } from '@mui/icons-material';
 
-// تعريف الواجهات لتجنب أخطاء TypeScript
 interface Product {
   _id: string;
   product: {

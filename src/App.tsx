@@ -4,14 +4,13 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setIsLogin } from './libs/UserToken/userSlice';
 
-// استيراد المكونات
 import Home from './Components/Home/Home';
 import Layout from './Components/Layout/Layout';
 import Login from './Components/Login/Login';
 import ProductDetails from './Components/ProductDetails/ProductDetails';
 import Register from './Components/Register/Register';
 import Brands from './Components/Brands/Brands';
-import WishList from './Components/WishList/WishList';
+import WishList from './Components/wish list/WishList';
 import Categories from './Components/Categories/Categories';
 import Cart from './Components/Cart/Cart';
 import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute';
@@ -19,7 +18,7 @@ import ForgotPassword from './Components/Authentication/ForgotPassword';
 import VerifyPassword from './Components/Authentication/VerifyResetCode';
 import ResetPassword from './Components/Authentication/ResetPassword';
 import ChangePassword from './Components/Authentication/ChangePassword';
-import AllOrders from './Components/AllOrders/AllOrders';
+import AllOrders from './Components/allOrders/AllOrders';
 
 function App() {
   const dispatch = useDispatch();
