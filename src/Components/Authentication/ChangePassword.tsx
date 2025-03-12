@@ -1,48 +1,61 @@
-import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Box } from '@mui/material';
-import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
+import React, { useState } from "react";
+import { TextField, Button, Typography, Container, Box } from "@mui/material";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const ChangePassword = () => {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [rePassword, setRePassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [rePassword, setRePassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem('userToken') || '';
+  const token = localStorage.getItem("userToken") || "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!currentPassword || !newPassword || !rePassword) {
-      toast.error('الرجاء إدخال جميع الحقول');
+      toast.error("الرجاء إدخال جميع الحقول");
       return;
     }
 
     if (newPassword !== rePassword) {
-      toast.error('كلمة المرور الجديدة غير متطابقة');
+      toast.error("كلمة المرور الجديدة غير متطابقة");
       return;
     }
 
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/.test(newPassword)) {
-      toast.error('كلمة المرور الجديدة يجب أن تحتوي على 8 أحرف على الأقل مع أحرف وأرقام');
+    if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(newPassword)) {
+      toast.error("كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل مع حرف كبير، رقم، ورمز خاص");
       return;
     }
 
-    setLoading(true);
     try {
-      await axios.post(
-        'https://ecommerce.routemisr.com/api/v1/users/changeMyPassword',
-        { currentPassword, password: newPassword, rePassword },
-        { headers: { token: `${token}` } }
+      setLoading(true);
+
+      const response = await axios.post(
+        "https://ecommerce.routemisr.com/api/v1/users/changeMyPassword",
+        {
+          currentPassword,
+          password: newPassword,
+          rePassword,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            token: `${token}`, 
+          },
+        }
       );
 
-      toast.success('تم تغيير كلمة المرور بنجاح');
-      setCurrentPassword('');
-      setNewPassword('');
-      setRePassword('');
+      toast.success("تم تغيير كلمة المرور بنجاح");
+      
+      setCurrentPassword("");
+      setNewPassword("");
+      setRePassword("");
     } catch (error) {
-      toast.error('حدث خطأ أثناء تغيير كلمة المرور. حاول مرة أخرى');
+      const errorMessage = error.response?.data?.message || "حدث خطأ أثناء تغيير كلمة المرور. حاول مرة أخرى";
+
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -51,7 +64,7 @@ const ChangePassword = () => {
   return (
     <Container maxWidth="xs">
       <Toaster position="top-center" reverseOrder={false} />
-      <Box sx={{ textAlign: 'center', marginTop: 5 }}>
+      <Box sx={{ textAlign: "center", marginTop: 5 }}>
         <Typography variant="h4" gutterBottom>
           تغيير كلمة المرور
         </Typography>
@@ -102,7 +115,7 @@ const ChangePassword = () => {
             sx={{ marginTop: 2 }}
             disabled={loading}
           >
-            {loading ? 'جاري تغيير كلمة المرور...' : 'تغيير كلمة المرور'}
+            {loading ? "جاري تغيير كلمة المرور..." : "تغيير كلمة المرور"}
           </Button>
         </form>
       </Box>
