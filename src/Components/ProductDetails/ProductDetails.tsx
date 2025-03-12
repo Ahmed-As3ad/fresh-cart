@@ -23,7 +23,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import toast from "react-hot-toast";
-import { RootState } from "../../libs/store";
+import { AppDispatch, RootState } from "../../libs/store";
 
 
 const arrowButtonStyle = (position: { left?: number; right?: number }) => ({
@@ -40,7 +40,9 @@ const arrowButtonStyle = (position: { left?: number; right?: number }) => ({
 
 interface Product {
   id: string;
-  name: string;
+  title: string;
+  category: string;
+  imageCover: string;
   price: number;
 }
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Avatar,
@@ -24,6 +24,7 @@ const settings = ["My Orders", "Change Password", "Logout"];
 export default function Navbar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [activePage, setActivePage] = React.useState<string>("home");
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
