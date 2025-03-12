@@ -2,10 +2,27 @@ import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-// 📌 تعريف نوع البيانات الصحيح للسياق
+interface Product {
+  id: string;
+  title: string;
+  imageCover: string;
+  price: number;
+}
+
+interface CartItem {
+  product: Product;
+  count: number;
+  price: number;
+}
+
+interface CartData {
+  _id?: string;
+  products?: CartItem[];
+}
+
 interface CartContextType {
-  cart: any;
-  setCart: React.Dispatch<React.SetStateAction<any>>;
+  cart: CartData;
+  setCart: React.Dispatch<React.SetStateAction<CartData>>;
   getCart: () => Promise<void>;
   addToCart: (productId: string) => Promise<any>;
   getProductsCart: () => Promise<any>;
@@ -16,10 +33,10 @@ interface CartContextType {
 export const ContextCart = createContext<CartContextType | null>(null);
 
 export default function ContextCartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState<CartData>({});
 
   const getHeaders = () => ({
-    token: localStorage.getItem("userToken"),
+    token: ` ${localStorage.getItem("userToken") || ""}`,
   });
 
   async function addToCart(productId: string) {
@@ -55,14 +72,17 @@ export default function ContextCartProvider({ children }: { children: React.Reac
       await axios.delete(`https://ecommerce.routemisr.com/api/v1/cart/${productId}`, {
         headers: getHeaders(),
       });
+  
       toast.success("تم حذف المنتج من السلة!");
-      getCart();
+      setCart((prevCart) => ({
+        ...prevCart,
+        products: prevCart.products?.filter((item) => item.product.id !== productId) || [],
+      }));
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "حدث خطأ أثناء حذف المنتج");
       throw error;
     }
   }
-
   async function updateProductCart(productId: string, count: number) {
     try {
       const response = await axios.put(
@@ -70,14 +90,29 @@ export default function ContextCartProvider({ children }: { children: React.Reac
         { count },
         { headers: getHeaders() }
       );
+  
       toast.success("تم تحديث الكمية بنجاح!");
-      getCart();
+  
+      setCart((prevCart) => {
+        if (!prevCart.products) return prevCart;
+  
+        const newCart = structuredClone(prevCart);
+  
+        newCart.products = newCart.products.map((item) =>
+          item.product.id === productId ? { ...item, count } : item
+        );
+  
+        return newCart;
+      });
+  
       return response.data;
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "حدث خطأ أثناء تحديث الكمية");
       throw error;
     }
   }
+  
+  
 
   async function getCart() {
     try {
@@ -93,17 +128,7 @@ export default function ContextCartProvider({ children }: { children: React.Reac
   }, []);
 
   return (
-    <ContextCart.Provider
-      value={{
-        cart,
-        setCart,
-        getCart,
-        addToCart,
-        getProductsCart,
-        deleteProductCart,
-        updateProductCart,
-      }}
-    >
+    <ContextCart.Provider value={{ cart, setCart, getCart, addToCart, getProductsCart, deleteProductCart, updateProductCart }}>
       {children}
     </ContextCart.Provider>
   );

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ContextPay } from "./ContextPay.tsx"; 
+import { ContextPay } from "./ContextPay"; 
 import { ReactNode } from "react";
 import toast from "react-hot-toast";
 
@@ -8,9 +8,9 @@ interface ContextPayProviderProps {
 }
 
 export default function ContextPayProvider({ children }: ContextPayProviderProps) {
-  
+
   const getHeaders = () => ({
-    token: localStorage.getItem("userToken") || "",
+    token: `${localStorage.getItem("userToken") || ""}`,
   });
 
   async function checkOutSession(cartId: string, url: string, formikValues: any) {

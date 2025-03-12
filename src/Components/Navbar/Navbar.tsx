@@ -13,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../libs/store";
@@ -30,10 +29,6 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLogin = useSelector((state: RootState) => state.user.isLogin);
-
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -55,101 +50,43 @@ export default function Navbar() {
     navigate("/login");
   };
 
-  const handleChangePassword = () => {
-    navigate("/change-password");
-    handleCloseUserMenu();
-  };
-
-  const handleAllOrders = () => {
-    navigate("/allorders");
-    handleCloseUserMenu();
-  };
-
   return (
-    <AppBar position="static" sx={{ backgroundColor: "black" }}>
+    <AppBar position="static" sx={{ backgroundColor: "#1E1E1E" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <ShoppingCartOutlinedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
-
           <Typography
             variant="h6"
             noWrap
-            component="h6"
+            component="div"
             sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
+              flexGrow: 1,
+              display: "flex",
+              justifyContent: "center",
+              fontFamily: "Poppins, sans-serif",
               fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "white",
+              letterSpacing: ".2rem",
+              color: "#FF5722",
               textDecoration: "none",
               cursor: "pointer",
             }}
           >
+            <ShoppingCartOutlinedIcon sx={{ mt: 0.5 }} />
             FreshCart
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton size="large" color="inherit" onClick={handleOpenNavMenu}>
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              anchorEl={anchorElNav}
-              open={Boolean(anchorElNav)}
-              onClose={() => setAnchorElNav(null)}
-              sx={{ display: { xs: "block", md: "none" } }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
-                  <Link to={page === "home" ? "/" : `/${page}`} style={{ textDecoration: "none", color: "inherit" }}>
-                    <Typography>{page}</Typography>
-                  </Link>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-
-          <ShoppingCartOutlinedIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="h5"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "white",
-              cursor: "pointer",
-            }}
-          >
-            FreshCart
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "flex-end" }}>
+          <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}>
             {isLogin ? (
               pages.map((page) => (
-                <Link key={page} to={page === "home" ? "/" : `/${page}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link key={page} to={page === "home" ? "/" : `/${page}`}
+                  style={{ textDecoration: "none", margin: "0 15px" }}>
                   <Button
                     onClick={() => handleCloseNavMenu(page)}
                     sx={{
-                      my: 2,
-                      color: "white",
-                      display: "block",
-                      position: "relative",
-                      "&:after": {
-                        content: '""',
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "2px",
-                        backgroundColor: "#FF5722",
-                        transform: activePage === page ? "scaleX(1)" : "scaleX(0)",
-                        transition: "transform 0.3s ease",
-                      },
+                      color: activePage === page ? "#FF5722" : "white",
+                      fontWeight: "bold",
+                      fontSize: "16px",
+                      textTransform: "capitalize",
+                      '&:hover': { color: "#FF5722" }
                     }}
                   >
                     {page}
@@ -184,10 +121,11 @@ export default function Navbar() {
                     if (setting === "Logout") {
                       handleLogout();
                     } else if (setting === "Change Password") {
-                      handleChangePassword();
+                      navigate("/change-password");
                     } else {
-                      handleAllOrders();
+                      navigate("/allorders");
                     }
+                    handleCloseUserMenu();
                   }}
                 >
                   <Typography>{setting}</Typography>

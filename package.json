@@ -19,6 +19,7 @@
     "axios": "^1.7.9",
     "formik": "^2.4.6",
     "framer-motion": "^12.4.7",
+    "jwt-decode": "^4.0.0",
     "notistack": "^3.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

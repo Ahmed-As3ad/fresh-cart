@@ -17,27 +17,31 @@ import {
   CircularProgress,
   Alert,
   IconButton,
+  Container,
 } from "@mui/material";
-import { styled } from "@mui/system";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import { AppDispatch, RootState } from "../../libs/store";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import toast from "react-hot-toast";
 
-const ProductContainer = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  [theme.breakpoints.up("md")]: {
-    flexDirection: "row",
+
+const arrowButtonStyle = (position: { left?: number; right?: number }) => ({
+  position: "absolute",
+  top: "50%",
+  transform: "translateY(-50%)",
+  backgroundColor: "rgba(0, 0, 0, 0.4)",
+  color: "white",
+  "&:hover": {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
-  gap: theme.spacing(4),
-  padding: theme.spacing(4),
-}));
+  ...position,
+});
 
 export default function ProductDetails() {
-  const { id, category } = useParams<{ id: string; category: string }>();
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.cart);
+  const { id, category } = useParams();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.cart);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["productsDetails", id],
@@ -45,17 +49,18 @@ export default function ProductDetails() {
       const res = await axios.get(`https://ecommerce.routemisr.com/api/v1/products/${id}`);
       return res.data.data;
     },
-    enabled: !!id, // تجنب الاستعلام إذا لم يكن `id` موجودًا
+    enabled: !!id,
   });
-
+  
   const { data: relatedProducts } = useQuery({
     queryKey: ["productsRelated", category],
     queryFn: async () => {
       const { data } = await axios.get("https://ecommerce.routemisr.com/api/v1/products");
       return data.data.filter((p: any) => p.category?.name === category);
     },
-    enabled: !!category, // تجنب الاستعلام إذا لم يكن `category` موجودًا
+    enabled: !!category,
   });
+  
 
   const handleAddToCart = () => {
     if (!product) {
@@ -66,7 +71,6 @@ export default function ProductDetails() {
     toast.success("تمت إضافة المنتج إلى السلة بنجاح!");
   };
 
-  const [currentSlide, setCurrentSlide] = useState(0);
   const handleNext = () => setCurrentSlide((prev) => (prev + 1) % (product?.images?.length || 1));
   const handlePrevious = () => setCurrentSlide((prev) => (prev - 1 + (product?.images?.length || 1)) % (product?.images?.length || 1));
 
@@ -74,66 +78,102 @@ export default function ProductDetails() {
   if (!product) return <Alert severity="error" sx={{ mt: 5, textAlign: "center" }}>لم يتم العثور على المنتج!</Alert>;
 
   return (
-    <Box sx={{ bgcolor: "background.paper", pt: 5, pb: 6 }}>
-      <ProductContainer>
-        <Card sx={{ maxWidth: 450, boxShadow: 6, borderRadius: 4, overflow: "hidden", position: "relative" }}>
-          <Box sx={{ position: "relative" }}>
-            <CardMedia
-              component="img"
-              image={product?.images?.[currentSlide] || ""}
-              alt={product?.title || "Product image"}
-              sx={{ width: "100%", height: 400, objectFit: "cover" }}
-            />
-            {product?.images?.length > 1 && (
-              <>
-                <IconButton onClick={handlePrevious} sx={{ position: "absolute", top: "50%", left: "10px", backgroundColor: "rgba(255, 255, 255, 0.7)" }}>
-                  <ArrowBackIosIcon sx={{ color: "black" }} />
-                </IconButton>
-                <IconButton onClick={handleNext} sx={{ position: "absolute", top: "50%", right: "10px", backgroundColor: "rgba(255, 255, 255, 0.7)" }}>
-                  <ArrowForwardIosIcon sx={{ color: "black" }} />
-                </IconButton>
-              </>
-            )}
-          </Box>
-        </Card>
-
-        <Box sx={{ maxWidth: 500, flex: 1 }}>
-          <Typography variant="h3" sx={{ fontWeight: "bold" }}>{product?.title}</Typography>
-          <Chip label={product?.category?.name || "غير محدد"} color="primary" variant="outlined" sx={{ mb: 2 }} />
-          <Typography variant="body1" sx={{ color: "text.secondary", lineHeight: 1.8, mb: 3 }}>{product?.description}</Typography>
-          <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: "bold", color: "primary.main" }}>{product?.price} EGP</Typography>
-            <Rating value={product?.ratingsAverage || 0} precision={0.1} readOnly />
-          </Box>
-          <Button 
-            variant="contained" 
-            size="large" 
-            fullWidth 
-            onClick={handleAddToCart} 
-            disabled={loading} 
-            sx={{ fontWeight: "bold", position: "relative" }}
-          >
-            {loading ? <CircularProgress size={24} sx={{ position: "absolute" }} /> : "إضافة إلى السلة"}
-          </Button>
+    <Container sx={{ pt: 5, pb: 6 }}>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center", justifyContent: "center", p: 4 }}>
+      {/* صورة المنتج */}
+      <Card sx={{ maxWidth: 450, boxShadow: 4, borderRadius: 3, overflow: "hidden" }}>
+        <Box sx={{ position: "relative", bgcolor: "#f8f9fa" }}>
+          <CardMedia
+            component="img"
+            image={product?.images?.[currentSlide] || ""}
+            alt={product?.title || "Product image"}
+            sx={{ width: "100%", height: 400, objectFit: "cover", transition: "opacity 0.3s", "&:hover": { opacity: 0.9 } }}
+          />
+          {product?.images?.length > 1 && (
+            <>
+              <IconButton onClick={handlePrevious} sx={arrowButtonStyle({ left: 10 })}>
+                <ArrowBackIosIcon />
+              </IconButton>
+              <IconButton onClick={handleNext} sx={arrowButtonStyle({ right: 10 })}>
+                <ArrowForwardIosIcon />
+              </IconButton>
+            </>
+          )}
         </Box>
-      </ProductContainer>
-
-      <Typography variant="h4" sx={{ px: 4, mb: 3, fontWeight: "bold" }}>منتجات ذات صلة</Typography>
-      <Grid container spacing={4}>
-        {relatedProducts?.map((relatedProduct: any) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={relatedProduct.id}>
-            <Card sx={{ borderRadius: 3, boxShadow: 4, transition: "transform 0.3s" }}>
-              <Link to={`/productdetails/${relatedProduct.id}/${relatedProduct.category?.name}`} style={{ textDecoration: "none" }}>
-                <CardMedia component="img" height="250" image={relatedProduct.imageCover || ""} alt={relatedProduct.title} />
-                <CardContent>
-                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>{relatedProduct.title}</Typography>
-                  <Typography variant="h6" color="primary.main">{relatedProduct.price} EGP</Typography>
-                </CardContent>
-              </Link>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      </Card>
+      <Box sx={{ maxWidth: 450, textAlign: "start", p: 3, bgcolor: "#ffffff", borderRadius: 3, boxShadow: 3 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#2c3e50", mb: 1 }}>
+          {product?.title}
+        </Typography>
+        <Chip label={product?.category?.name || "غير محدد"} color="primary" sx={{ my: 1, fontSize: "1rem", bgcolor: "#3498db", color: "white" }} />
+        <Typography variant="body1" sx={{ mb: 2, color: "#7f8c8d", lineHeight: 1.8 }}>
+          {product?.description}
+        </Typography>
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#e74c3c", mb: 1 }}>
+          {product?.price} EGP
+        </Typography>
+        <Rating value={product?.ratingsAverage || 0} precision={0.1} readOnly sx={{ mb: 2 }} />
+        
+        <Button
+          variant="contained"
+          size="large"
+          fullWidth
+          onClick={handleAddToCart}
+          disabled={loading}
+          sx={{
+            fontWeight: "bold",
+            bgcolor: "#e74c3c",
+            color: "white",
+            py: 1.5,
+            fontSize: "1.1rem",
+            transition: "background 0.3s",
+            "&:hover": { bgcolor: "#c0392b" },
+            position: "relative",
+          }}
+          startIcon={<ShoppingCartIcon />}
+        >
+          {loading ? <CircularProgress size={24} sx={{ position: "absolute" }} /> : "إضافة إلى السلة"}
+        </Button>
+      </Box>
     </Box>
+
+      <Typography variant="h4" sx={{ my: 4, textAlign: "center", fontWeight: "bold", color: "#2c3e50" }}>
+  منتجات ذات صلة
+</Typography>
+
+<Grid container spacing={4} justifyContent="center">
+  {relatedProducts?.map((relatedProduct) => (
+    <Grid item xs={12} sm={6} md={4} lg={3} key={relatedProduct.id}>
+      <Card
+        sx={{
+          borderRadius: 3,
+          boxShadow: 4,
+          overflow: "hidden",
+          transition: "transform 0.3s, box-shadow 0.3s",
+          "&:hover": { transform: "scale(1.05)", boxShadow: "8px 8px 20px rgba(0, 0, 0, 0.2)" },
+        }}
+      >
+        <Link to={`/productdetails/${relatedProduct.id}/${relatedProduct.category?.name}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <CardMedia
+            component="img"
+            height="250"
+            image={relatedProduct.imageCover || ""}
+            alt={relatedProduct.title}
+            sx={{ transition: "opacity 0.3s", "&:hover": { opacity: 0.85 } }}
+          />
+          <CardContent sx={{ textAlign: "center", bgcolor: "#f8f9fa" }}>
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: "#2c3e50" }}>
+              {relatedProduct.title.split(" ").slice(0, 3).join(" ")}
+            </Typography>
+            <Typography variant="h6" color="#e74c3c" sx={{ fontWeight: "bold", mt: 1 }}>
+              {relatedProduct.price} EGP
+            </Typography>
+          </CardContent>
+        </Link>
+      </Card>
+    </Grid>
+  ))}
+</Grid>
+    </Container>
   );
 }

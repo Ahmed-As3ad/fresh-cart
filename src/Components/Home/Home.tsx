@@ -25,7 +25,7 @@ export default function Home() {
   
   if (isError) {
     toast.error(error.message);
-    return null; // لا نعرض أي شيء لأن التنبيه يظهر
+    return null; 
   }
 
   return (

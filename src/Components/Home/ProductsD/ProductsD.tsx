@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Box, Button, Card, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import InfoIcon from "@mui/icons-material/Info";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { Link } from "react-router-dom";
 
@@ -72,107 +73,125 @@ export default function ProductCard({ prod }: { prod: Product }) {
 
   return (
     <Card
+    sx={{
+      borderRadius: "16px",
+      boxShadow: 6,
+      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+      "&:hover": { transform: "scale(1.05)", boxShadow: 10 },
+      position: "relative",
+      bgcolor: "white",
+      overflow: "hidden",
+    }}
+  >
+    <IconButton
       sx={{
-        borderRadius: "12px",
-        boxShadow: 4,
-        transition: "transform 0.3s ease",
-        "&:hover": { transform: "scale(1.02)" },
-        position: "relative",
+        position: "absolute",
+        top: 8,
+        left: 8,
+        zIndex: 2,
+        color: isLiked ? "#FF3D00" : "#BDBDBD",
+        bgcolor: "rgba(255,255,255,0.8)",
+        transition: "color 0.3s ease, transform 0.2s ease",
+        "&:hover": {
+          color: isLiked ? "#D32F2F" : "error.main",
+          transform: "scale(1.2)",
+        },
       }}
+      onClick={handleLikeClick}
     >
-      <IconButton
+      {isLiked ? <FavoriteIcon fontSize="medium" /> : <FavoriteBorderIcon fontSize="medium" />}
+    </IconButton>
+
+    <Link to={`/productdetails/${_id}/${category.name}`} style={{ textDecoration: "none" }}>
+      <CardMedia
+        component="img"
+        height="220"
+        image={imageCover}
+        alt={title}
+        sx={{
+          borderTopLeftRadius: "16px",
+          borderTopRightRadius: "16px",
+          objectFit: "cover",
+          transition: "opacity 0.3s ease",
+          "&:hover": { opacity: 0.9 },
+        }}
+      />
+    </Link>
+  
+    <CardContent sx={{ p: 2, position: "relative" }}>
+      <Box
         sx={{
           position: "absolute",
-          top: 8,
-          left: 8,
-          zIndex: 2,
-          color: isLiked ? "rgb(255, 27, 27)" : "rgb(162, 162, 162)",
-          bgcolor: "background.paper",
-          "&:hover": {
-            color: isLiked ? "rgb(255, 0, 0)" : "error.main",
-            bgcolor: "rgba(255,255,255,0.9)",
-          },
-        }}
-        onClick={handleLikeClick}
-      >
-        {isLiked ? <FavoriteIcon fontSize="medium" /> : <FavoriteBorderIcon fontSize="medium" />}
-      </IconButton>
-
-      <Link to={`/productdetails/${_id}/${category.name}`} style={{ textDecoration: "none" }}>
-        <CardMedia
-          component="img"
-          height="200"
-          image={imageCover}
-          alt={title}
-          sx={{
-            borderTopLeftRadius: "12px",
-            borderTopRightRadius: "12px",
-            objectFit: "cover",
-            aspectRatio: "1/1",
-          }}
-        />
-
-        <CardContent sx={{ p: 2 }}>
-          <Box
-            sx={{
-              position: "absolute",
-              top: 8,
-              right: 8,
-              bgcolor: "#FF5722",
-              color: "white",
-              px: 1.5,
-              py: 0.5,
-              borderRadius: "8px",
-              fontSize: "0.875rem",
-            }}
-          >
-            {category.name || "عام"}
-          </Box>
-
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 600,
-              color: "text.primary",
-              height: "3em",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-            }}
-          >
-            {title}
-          </Typography>
-
-          <Typography
-            variant="h6"
-            sx={{
-              mt: 1,
-              color: "primary.main",
-              fontWeight: "bold",
-              "&:hover": { color: "#FF5722" },
-            }}
-          >
-            {price.toLocaleString()} جنيه
-          </Typography>
-        </CardContent>
-      </Link>
-
-      <Button
-        component={Link}
-        to={`/productdetails/${_id}/${category.name}`}
-        fullWidth
-        sx={{
-          backgroundColor: "#FF5722",
+          top: 10,
+          right: 10,
+          bgcolor: "#FF5722",
           color: "white",
-          borderRadius: "0 0 12px 12px",
-          py: 1.5,
-          "&:hover": { bgcolor: "#E64A19" },
+          px: 2,
+          py: 0.5,
+          borderRadius: "8px",
+          fontSize: "0.875rem",
+          fontWeight: "bold",
+          boxShadow: 3,
         }}
       >
-        تفاصيل المنتج
-      </Button>
-    </Card>
+        {category.name || "عام"}
+      </Box>
+  
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: "bold",
+          color: "text.primary",
+          height: "3em",
+          mt: 3,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          transition: "color 0.3s ease",
+          "&:hover": { color: "#FF5722" },
+        }}
+      >
+        {title.split(" ").slice(0, 3).join(" ")}
+      </Typography>
+  
+      <Typography
+        variant="h5"
+        sx={{
+          color: "#388E3C",
+          fontWeight: "bold",
+          transition: "color 0.3s ease",
+          "&:hover": { color: "#2E7D32" },
+        }}
+      >
+        {price.toLocaleString()} جنيه
+      </Typography>
+    </CardContent>
+
+    <Button
+      component={Link}
+      to={`/productdetails/${_id}/${category.name}`}
+      fullWidth
+      sx={{
+        backgroundColor: "#FF5722",
+        color: "white",
+        borderRadius: "0 0 16px 16px",
+        py: 1.5,
+        fontSize: "1rem",
+        fontWeight: "bold",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 1,
+        transition: "background 0.3s ease",
+        "&:hover": { bgcolor: "#E64A19" },
+      }}
+    >
+      <InfoIcon fontSize="medium" />
+      تفاصيل المنتج
+    </Button>
+  </Card>
+  
   );
 }
