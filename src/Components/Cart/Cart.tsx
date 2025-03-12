@@ -4,14 +4,22 @@ import toast, { Toaster } from "react-hot-toast";
 import { ContextPay } from "../../Context/ContextPayProvider.tsx";
 import { useFormik } from "formik";
 import { motion } from "framer-motion";
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, MenuItem, Select, InputLabel, FormControl, Box, Typography, IconButton, Grid } from "@mui/material";
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, MenuItem, Select, InputLabel, FormControl, Box, Typography, IconButton } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Add, Remove, ShoppingCart } from '@mui/icons-material';
 
 export default function Cart() {
-  let { getProductsCart, deleteProductCart, updateProductCart, setCart, cart } = useContext(ContextCart);
-  let { checkOutSession } = useContext(ContextPay);
-  const [productsCart, setProductsCart] = useState(null);
+  const cartContext = useContext(ContextCart);
+  const payContext = useContext(ContextPay);
+
+  if (!cartContext || !payContext) {
+    return <Typography align="center">Loading...</Typography>;
+  }
+
+  const { getProductsCart, deleteProductCart, updateProductCart, setCart, cart } = cartContext;
+  const { checkOutSession } = payContext;
+  
+  const [productsCart, setProductsCart] = useState<any>(null);
   const [isCheckOut, setIsCheckOut] = useState(false);
 
   let formik = useFormik({
@@ -20,7 +28,13 @@ export default function Cart() {
       floating_phone: "",
       floating_city: "",
     },
-    onSubmit: () => handleCheckOut(cart.data?._id, "http://localhost:5173"),
+    onSubmit: () => {
+      if (!cart?.data?._id) {
+        toast.error("Cart ID is missing.");
+        return;
+      }
+      handleCheckOut(cart.data._id, "http://localhost:5173");
+    },
   });
 
   async function getItems() {
@@ -32,7 +46,7 @@ export default function Cart() {
     }
   }
 
-  async function deleteItem(productId) {
+  async function deleteItem(productId: string) {
     try {
       let response = await deleteProductCart(productId);
       if (response?.status === 200) {
@@ -45,7 +59,7 @@ export default function Cart() {
     }
   }
 
-  async function updateItems(productId: number, count: number) {
+  async function updateItems(productId: string, count: number) {
     if (count < 1) return;
     try {
       const response = await updateProductCart(productId, count);
@@ -56,13 +70,12 @@ export default function Cart() {
     }
   }
 
-  async function handleCheckOut(cartId: number, url: string) {
-    if (!cartId) return toast.error("Cart ID is missing.");
+  async function handleCheckOut(cartId: string, url: string) {
     try {
       const { data } = await checkOutSession(cartId, url, formik.values);
       if (data.status === "success") {
         toast.success("Redirecting to payment...");
-        window.location.href = data.session.url;
+        window.open(data.session.url, "_blank");
       }
     } catch (error) {
       toast.error("Checkout failed. Please try again.");
@@ -92,86 +105,60 @@ export default function Cart() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {productsCart?.data?.products?.filter(Boolean).map((product: any) => (
-              <TableRow key={product?.product?.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                <TableCell align="center">
-                  <img
-                    src={product?.product?.imageCover || "fallback-image.jpg"}
-                    alt={product?.product?.title || "Product Image"}
-                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: '8px' }}
-                  />
-                </TableCell>
-                <TableCell align="center" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                  {product?.product?.title || "No Title"}
-                </TableCell>
-                <TableCell align="center">
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => product.count > 1 && updateItems(product?.product?.id, (product.count ?? 1) - 1)}
-                      color="primary"
-                      disabled={product.count <= 1}
-                    >
-                      <Remove />
-                    </IconButton>
-                    <TextField
-                      value={product?.count ?? 0}
-                      disabled
-                      inputProps={{ style: { textAlign: "center" } }}
-                      variant="outlined"
-                      size="small"
-                      sx={{ width: 50 }}
+            {productsCart?.data?.products?.map((product: any) => (
+              product?.product ? (
+                <TableRow key={product.product.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                  <TableCell align="center">
+                    <img
+                      src={product.product.imageCover || "fallback-image.jpg"}
+                      alt={product.product.title || "Product Image"}
+                      style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: '8px' }}
                     />
-                    <IconButton
-                      size="small"
-                      onClick={() => updateItems(product?.product?.id, (product.count ?? 0) + 1)}
-                      color="primary"
-                    >
-                      <Add />
+                  </TableCell>
+                  <TableCell align="center" sx={{ color: 'text.primary', fontWeight: 500 }}>
+                    {product.product.title || "No Title"}
+                  </TableCell>
+                  <TableCell align="center">
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => product.count > 1 && updateItems(product.product.id, product.count - 1)}
+                        color="primary"
+                        disabled={product.count <= 1}
+                      >
+                        <Remove />
+                      </IconButton>
+                      <TextField
+                        value={product.count ?? 0}
+                        disabled
+                        inputProps={{ style: { textAlign: "center" } }}
+                        variant="outlined"
+                        size="small"
+                        sx={{ width: 50 }}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => updateItems(product.product.id, product.count + 1)}
+                        color="primary"
+                      >
+                        <Add />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 600 }}>
+                    ${((product?.price ?? 0) * (product?.count ?? 0)).toFixed(2)}
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton onClick={() => deleteItem(product.product.id)} color="error" size="large" sx={{ padding: 1 }}>
+                      <DeleteIcon />
                     </IconButton>
-                  </Box>
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 600 }}>
-                  ${((product?.price ?? 0) * (product?.count ?? 0)).toFixed(2)}
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    onClick={() => deleteItem(product?.product?.id)}
-                    color="error"
-                    size="large"
-                    sx={{ padding: 1 }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
+                  </TableCell>
+                </TableRow>
+              ) : null
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Button
-          onClick={() => setIsCheckOut(!isCheckOut)}
-          sx={{
-            backgroundColor: 'primary.main',
-            color: 'white',
-            '&:hover': { backgroundColor: 'primary.dark' },
-            padding: '12px 20px',
-            borderRadius: '8px',
-            fontSize: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-          }}
-        >
-          <ShoppingCart /> Proceed to Checkout
-        </Button>
-
-        <Typography variant="h6" color="textSecondary" sx={{ fontWeight: 600 }}>
-          Total: ${productsCart?.data?.totalCartPrice || 0}
-        </Typography>
-      </Box>
 
       {isCheckOut && (
         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
@@ -181,7 +168,7 @@ export default function Cart() {
               <TextField label="Phone number" name="floating_phone" value={formik.values.floating_phone} onChange={formik.handleChange} fullWidth required />
               <FormControl fullWidth required>
                 <InputLabel>City</InputLabel>
-                <Select name="floating_city" value={formik.values.floating_city} onChange={formik.handleChange}>
+                <Select name="floating_city" value={formik.values.floating_city} onChange={(e) => formik.setFieldValue("floating_city", e.target.value)}>
                   <MenuItem value="Cairo">Cairo</MenuItem>
                 </Select>
               </FormControl>

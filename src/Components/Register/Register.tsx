@@ -40,6 +40,7 @@ export default function Register() {
           navigate('/');
         }
       } catch (error) {
+        console.error(error);
         toast.error(error?.response?.data?.message || 'حدث خطأ في التسجيل');
       } finally {
         setLoading(false);
@@ -55,25 +56,27 @@ export default function Register() {
 
       <form onSubmit={formik.handleSubmit}>
         <Grid container spacing={2}>
-          {['name', 'email', 'password', 'rePassword', 'phone'].map((field, index) => (
+          {[
+            { name: 'name', label: 'اسم المستخدم', type: 'text', icon: <Person /> },
+            { name: 'email', label: 'البريد الإلكتروني', type: 'email', icon: <Email /> },
+            { name: 'password', label: 'كلمة المرور', type: 'password', icon: <Lock /> },
+            { name: 'rePassword', label: 'تأكيد كلمة المرور', type: 'password', icon: <LockOpen /> },
+            { name: 'phone', label: 'رقم الهاتف', type: 'text', icon: <Phone /> },
+          ].map(({ name, label, type, icon }, index) => (
             <Grid item xs={12} key={index}>
               <TextField
-                label={field === 'name' ? 'اسم المستخدم' : field === 'email' ? 'البريد الإلكتروني' : field === 'password' ? 'كلمة المرور' : field === 'rePassword' ? 'تأكيد كلمة المرور' : 'رقم الهاتف'}
+                label={label}
                 variant="outlined"
                 fullWidth
-                type={field.includes('password') ? 'password' : field === 'email' ? 'email' : 'text'}
-                name={field}
-                onChange={(e) => formik.setFieldValue(field, e.target.value.trim())}
+                type={type}
+                name={name}
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values[field]}
-                error={formik.touched[field] && Boolean(formik.errors[field])}
-                helperText={formik.touched[field] && formik.errors[field]}
+                value={formik.values[name]}
+                error={formik.touched[name] && Boolean(formik.errors[name])}
+                helperText={formik.touched[name] && formik.errors[name]}
                 InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      {field === 'name' ? <Person /> : field === 'email' ? <Email /> : field === 'password' ? <Lock /> : field === 'rePassword' ? <LockOpen /> : <Phone />}
-                    </InputAdornment>
-                  ),
+                  startAdornment: <InputAdornment position="start">{icon}</InputAdornment>,
                 }}
               />
             </Grid>
