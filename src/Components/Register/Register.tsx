@@ -4,10 +4,18 @@ import { Person, Email, Lock, LockOpen, Phone } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
 import { setIsLogin } from "../../libs/UserToken/userSlice.ts";
 import axios from 'axios';
-import { useFormik } from 'formik';
+import { useFormik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom'; 
 import toast from 'react-hot-toast';
+
+interface RegisterFormValues {
+  name: string;
+  email: string;
+  password: string;
+  rePassword: string;
+  phone: string;
+}
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
@@ -22,10 +30,10 @@ export default function Register() {
     phone: Yup.string().matches(/^01[0125][0-9]{8}$/, 'رقم الهاتف غير صالح').required('رقم الهاتف مطلوب'),
   });
 
-  const formik = useFormik({
+  const formik = useFormik<RegisterFormValues>({
     initialValues: { name: '', email: '', password: '', rePassword: '', phone: '' },
     validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values: RegisterFormValues, { setSubmitting }: FormikHelpers<RegisterFormValues>) => {
       setLoading(true);
       try {
         const { data } = await axios.post('https://ecommerce.routemisr.com/api/v1/auth/signup', values);
@@ -40,10 +48,11 @@ export default function Register() {
           navigate('/');
         }
       } catch (error) {
-        console.error(error);
-        toast.error(error?.response?.data?.message || 'حدث خطأ في التسجيل');
+        const errorObj = error as { response?: { data?: { message?: string } } };
+        toast.error(errorObj?.response?.data?.message || 'حدث خطأ في التسجيل');
       } finally {
         setLoading(false);
+        setSubmitting(false);
       }
     },
   });
@@ -56,13 +65,13 @@ export default function Register() {
 
       <form onSubmit={formik.handleSubmit}>
         <Grid container spacing={2}>
-          {[
+          {([
             { name: 'name', label: 'اسم المستخدم', type: 'text', icon: <Person /> },
             { name: 'email', label: 'البريد الإلكتروني', type: 'email', icon: <Email /> },
             { name: 'password', label: 'كلمة المرور', type: 'password', icon: <Lock /> },
             { name: 'rePassword', label: 'تأكيد كلمة المرور', type: 'password', icon: <LockOpen /> },
             { name: 'phone', label: 'رقم الهاتف', type: 'text', icon: <Phone /> },
-          ].map(({ name, label, type, icon }, index) => (
+          ] as const).map(({ name, label, type, icon }, index) => (
             <Grid item xs={12} key={index}>
               <TextField
                 label={label}
@@ -72,9 +81,9 @@ export default function Register() {
                 name={name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values[name]}
-                error={formik.touched[name] && Boolean(formik.errors[name])}
-                helperText={formik.touched[name] && formik.errors[name]}
+                value={formik.values[name as keyof RegisterFormValues]} 
+                error={formik.touched[name as keyof RegisterFormValues] && Boolean(formik.errors[name as keyof RegisterFormValues])}
+                helperText={formik.touched[name as keyof RegisterFormValues] && formik.errors[name as keyof RegisterFormValues]}
                 InputProps={{
                   startAdornment: <InputAdornment position="start">{icon}</InputAdornment>,
                 }}

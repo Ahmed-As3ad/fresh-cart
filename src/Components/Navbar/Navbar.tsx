@@ -22,7 +22,6 @@ const pages = ["home", "cart", "wishlist", "categories", "brands"];
 const settings = ["My Orders", "Change Password", "Logout"];
 
 export default function Navbar() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [activePage, setActivePage] = React.useState<string>("home");
 

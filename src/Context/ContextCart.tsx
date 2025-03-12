@@ -98,10 +98,12 @@ export default function ContextCartProvider({ children }: { children: React.Reac
   
         const newCart = structuredClone(prevCart);
   
-        newCart.products = newCart.products.map((item) =>
-          item.product.id === productId ? { ...item, count } : item
-        );
-  
+        if (newCart.products) {
+          newCart.products = newCart.products.map((item) =>
+            item.product.id === productId ? { ...item, count } : item
+          );
+        }
+        
         return newCart;
       });
   

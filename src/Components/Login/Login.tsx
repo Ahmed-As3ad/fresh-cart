@@ -42,7 +42,8 @@ export default function Login() {
           navigate('/');
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || 'فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+        const err = error as Error;
+        toast.error(err.message || 'فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
       } finally {
         setLoading(false);
       }

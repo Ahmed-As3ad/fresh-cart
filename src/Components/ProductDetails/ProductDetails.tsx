@@ -23,6 +23,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import toast from "react-hot-toast";
+import { RootState } from "../../libs/store";
 
 
 const arrowButtonStyle = (position: { left?: number; right?: number }) => ({
@@ -37,10 +38,16 @@ const arrowButtonStyle = (position: { left?: number; right?: number }) => ({
   ...position,
 });
 
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+}
+
 export default function ProductDetails() {
   const { id, category } = useParams();
-  const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.cart);
+  const dispatch = useDispatch<AppDispatch>(); 
+  const { loading } = useSelector((state: RootState) => state.cart);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const { data: product, isLoading } = useQuery({
@@ -142,7 +149,7 @@ export default function ProductDetails() {
 </Typography>
 
 <Grid container spacing={4} justifyContent="center">
-  {relatedProducts?.map((relatedProduct) => (
+  {relatedProducts?.map((relatedProduct: Product) => (
     <Grid item xs={12} sm={6} md={4} lg={3} key={relatedProduct.id}>
       <Card
         sx={{
