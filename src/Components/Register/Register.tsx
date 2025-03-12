@@ -28,19 +28,22 @@ export default function Register() {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        const response = await axios.post('https://ecommerce.routemisr.com/api/v1/auth/signup', values);
-        if (response.data.message === 'success') {
-          dispatch(setIsLogin({ token: response.data.token, userData: response.data.user }));
-          localStorage.setItem('userToken', response.data.token);
+        const { data } = await axios.post('https://ecommerce.routemisr.com/api/v1/auth/signup', values);
+        
+        if (data.message === 'success') {
+          dispatch(setIsLogin({ token: data.token, userData: data.user }));
+          
+          localStorage.setItem('userToken', data.token);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+
           toast.success('تم إنشاء الحساب بنجاح!');
           navigate('/');
-        } else {
-          toast.error('حدث خطأ في التسجيل');
         }
       } catch (error) {
         toast.error(error?.response?.data?.message || 'حدث خطأ في التسجيل');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     },
   });
 
@@ -60,7 +63,7 @@ export default function Register() {
                 fullWidth
                 type={field.includes('password') ? 'password' : field === 'email' ? 'email' : 'text'}
                 name={field}
-                onChange={formik.handleChange}
+                onChange={(e) => formik.setFieldValue(field, e.target.value.trim())}
                 onBlur={formik.handleBlur}
                 value={formik.values[field]}
                 error={formik.touched[field] && Boolean(formik.errors[field])}

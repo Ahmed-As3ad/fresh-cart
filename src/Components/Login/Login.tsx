@@ -24,34 +24,29 @@ export default function Login() {
       .required('كلمة المرور مطلوبة'),
   });
 
-  async function handleLogin(values) {
-    setLoading(true);
-    try {
-      const { data } = await axios.post('https://ecommerce.routemisr.com/api/v1/auth/signin', values);
-      
-      if (data.message === 'success') {
-        dispatch(setIsLogin({
-          token: data.token,
-          userData: data.user
-        }));
-        
-        localStorage.setItem('userToken', data.token);
-        localStorage.setItem('userData', JSON.stringify(data.user));
-
-        toast.success('تم تسجيل الدخول بنجاح!');
-        navigate('/');
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   const formik = useFormik({
     initialValues: { email: '', password: '' },
     validationSchema,
-    onSubmit: handleLogin,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        const { data } = await axios.post('https://ecommerce.routemisr.com/api/v1/auth/signin', values);
+        
+        if (data.message === 'success') {
+          dispatch(setIsLogin({ token: data.token, userData: data.user }));
+          
+          localStorage.setItem('userToken', data.token);
+          localStorage.setItem('userData', JSON.stringify(data.user));
+
+          toast.success('تم تسجيل الدخول بنجاح!');
+          navigate('/');
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.message || 'فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+      } finally {
+        setLoading(false);
+      }
+    },
   });
 
   return (
