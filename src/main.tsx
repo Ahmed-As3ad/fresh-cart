@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from './libs/store.ts';
 import { Provider } from 'react-redux';
 import ContextCartProvider from './Context/ContextCart.tsx';
-import ContextPayProvider from './Context/ContextPay.tsx'; 
+import ContextPayProvider from './Context/ContextPayProvider.tsx'; 
 
 
 const queryClient = new QueryClient();

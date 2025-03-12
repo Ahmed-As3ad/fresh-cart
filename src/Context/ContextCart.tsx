@@ -1,25 +1,39 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-export let ContextCart = createContext();
+// 📌 تعريف نوع البيانات الصحيح للسياق
+interface CartContextType {
+  cart: any;
+  setCart: React.Dispatch<React.SetStateAction<any>>;
+  getCart: () => Promise<void>;
+  addToCart: (productId: string) => Promise<any>;
+  getProductsCart: () => Promise<any>;
+  deleteProductCart: (productId: string) => Promise<void>;
+  updateProductCart: (productId: string, count: number) => Promise<any>;
+}
 
-export default function ContextCartProvider(props) {
-  const [cart, setCart] = useState({}); 
+export const ContextCart = createContext<CartContextType | null>(null);
 
-  const headers = {
+export default function ContextCartProvider({ children }: { children: React.ReactNode }) {
+  const [cart, setCart] = useState({});
+
+  const getHeaders = () => ({
     token: localStorage.getItem("userToken"),
-  };
+  });
 
-  async function addToCart(productId) {
+  async function addToCart(productId: string) {
     try {
       const response = await axios.post(
         "https://ecommerce.routemisr.com/api/v1/cart",
         { productId },
-        { headers }
+        { headers: getHeaders() }
       );
-      return response;
-    } catch (error) {
-      console.error("Error adding to cart:", error);
+      toast.success("تمت إضافة المنتج إلى السلة!");
+      getCart();
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "حدث خطأ أثناء إضافة المنتج");
       throw error;
     }
   }
@@ -27,48 +41,49 @@ export default function ContextCartProvider(props) {
   async function getProductsCart() {
     try {
       const response = await axios.get("https://ecommerce.routemisr.com/api/v1/cart", {
-        headers,
+        headers: getHeaders(),
       });
-      return response;
-    } catch (error) {
-      console.error("Error fetching cart products:", error);
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "حدث خطأ أثناء جلب المنتجات");
       throw error;
     }
   }
 
-  async function deleteProductCart(productId) {
+  async function deleteProductCart(productId: string) {
     try {
-      const response = await axios.delete(
-        `https://ecommerce.routemisr.com/api/v1/cart/${productId}`,
-        { headers }
-      );
-      return response;
-    } catch (error) {
-      console.error("Error deleting product from cart:", error);
+      await axios.delete(`https://ecommerce.routemisr.com/api/v1/cart/${productId}`, {
+        headers: getHeaders(),
+      });
+      toast.success("تم حذف المنتج من السلة!");
+      getCart();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "حدث خطأ أثناء حذف المنتج");
       throw error;
     }
   }
 
-  async function updateProductCart(productId, count) {
+  async function updateProductCart(productId: string, count: number) {
     try {
       const response = await axios.put(
         `https://ecommerce.routemisr.com/api/v1/cart/${productId}`,
         { count },
-        { headers }
+        { headers: getHeaders() }
       );
-      return response;
-    } catch (error) {
-      console.error("Error updating product in cart:", error);
+      toast.success("تم تحديث الكمية بنجاح!");
+      getCart();
+      return response.data;
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "حدث خطأ أثناء تحديث الكمية");
       throw error;
     }
   }
 
   async function getCart() {
     try {
-      const response = await getProductsCart();
-      setCart(response?.data || {});
-    } catch (error) {
-      console.error("Error getting cart:", error);
+      const data = await getProductsCart();
+      setCart(data || {});
+    } catch {
       setCart({});
     }
   }
@@ -89,7 +104,7 @@ export default function ContextCartProvider(props) {
         updateProductCart,
       }}
     >
-      {props.children}
+      {children}
     </ContextCart.Provider>
   );
 }

@@ -66,7 +66,7 @@ export default function WishList() {
   const mutation = useMutation<void, AxiosError, string>({
     mutationFn: removeFromWishlist,
     onSuccess: (_, productId) => {
-      queryClient.invalidateQueries(["wishlist"]);
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       
       const storedWishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
       const updatedWishlist = storedWishlist.filter((item: Product) => item._id !== productId);
@@ -75,8 +75,13 @@ export default function WishList() {
       toast.success("تم حذف المنتج بنجاح");
     },
     onError: (err) => {
-      toast.error(err.response?.data?.message || "حدث خطأ أثناء الحذف");
+      if (err instanceof Error) {
+        toast.error(err.message || "حدث خطأ أثناء الحذف");
+      } else {
+        toast.error("حدث خطأ غير معروف أثناء الحذف");
+      }
     },
+    
   });
 
   if (isLoading) {
@@ -128,9 +133,9 @@ export default function WishList() {
                   fullWidth
                   sx={{ mt: 2 }}
                   onClick={() => mutation.mutate(product._id)}
-                  disabled={mutation.isLoading}
+                  disabled={mutation.isPending}
                 >
-                  {mutation.isLoading ? <CircularProgress size={24} /> : "حذف من القائمة"}
+                  {mutation.isPending ? <CircularProgress size={24} /> : "حذف من القائمة"}
                 </Button>
               </CardContent>
             </Card>
