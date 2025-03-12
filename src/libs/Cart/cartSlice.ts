@@ -3,7 +3,6 @@ import toast from 'react-hot-toast';
 
 const getToken = () => localStorage.getItem('userToken');
 
-// 1. التأكد من أن اسم الـ action فريد ولم يُستخدم من قبل
 export const addToCartAction = createAsyncThunk(
   'cart/addItem',
   async (productId: string, { rejectWithValue }) => {
@@ -36,7 +35,6 @@ export const addToCartAction = createAsyncThunk(
   }
 );
 
-// 2. تعريف الأنواع
 interface CartItem {
   product: {
     id: string;
@@ -63,10 +61,9 @@ const initialState: CartState = {
 const cartSlice = createSlice({
   name: 'cart',
   initialState,
-  reducers: {}, // 3. إبقاء الـ reducers فارغة إذا لم تكن هناك actions عادية
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      // 4. استخدام الاسم الجديد للـ action
       .addCase(addToCartAction.pending, (state) => {
         state.loading = true;
         state.error = null;
