@@ -27,7 +27,7 @@ export default function Navbar() {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isLogin = useSelector((state) => state.user.isLogin);
+  const isLogin = useSelector((state: RootState) => state.user.isLogin);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);

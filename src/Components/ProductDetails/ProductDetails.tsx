@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../libs/store";
 import { addToCart } from "../../libs/Cart/cartSlice";
 import {
   Box,
@@ -66,7 +65,7 @@ export default function ProductDetails() {
 
   const handleAddToCart = () => {
     if (id) {
-      dispatch(addToCart(id));
+      dispatch(addToCart());
     }
   };
 
@@ -87,7 +86,7 @@ export default function ProductDetails() {
         <Card sx={{ maxWidth: 450, boxShadow: 6, borderRadius: 4, overflow: "hidden", position: "relative" }}>
           <Box sx={{ position: "relative" }}>
             <ProductImage
-              component="img"
+              as="img"
               image={product.images[currentSlide]}
               alt={product.title}
               sx={{
@@ -209,7 +208,7 @@ export default function ProductDetails() {
         Related Products
       </Typography>
 
-      <RelatedProductsGrid container spacing={4}>
+      <Grid container spacing={4}>
         {relatedProducts?.map((product: any) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
             <Card
@@ -238,20 +237,20 @@ export default function ProductDetails() {
                 />
                 <CardContent sx={{ padding: 2, backgroundColor: "background.default" }}>
                   <Typography variant="h6" sx={{ fontWeight: "bold", color: "text.primary", noWrap: true }}>
-                    {product.title}
+                  {product?.title || "Unknown title"}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                    {product.category.name}
+                  {product.category?.name || "Unknown Category"}
                   </Typography>
                   <Typography variant="h6" color="primary.main" sx={{ fontWeight: "bold" }}>
-                    {product.price} EGP
+                    {product.price || "unknow price"} EGP
                   </Typography>
                 </CardContent>
               </Link>
             </Card>
           </Grid>
         ))}
-      </RelatedProductsGrid>
+      </Grid>
     </Box>
   );
 }
