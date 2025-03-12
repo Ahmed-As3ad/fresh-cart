@@ -9,10 +9,9 @@ import Brands from './Components/Brands/Brands';
 import WishList from './Components/wish list/WishList';
 import Categories from './Components/Categories/Categories';
 import Cart from './Components/Cart/Cart';
-import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { setIsLogin } from './libs/UserToken/userSlice';
-import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute';
+// import { setIsLogin } from './libs/UserToken/userSlice';
+import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute.js';
 import ForgotPassword from './Components/Authentication/ForgotPassword';
 import VerifyPassword from './Components/Authentication/VerifyResetCode';
 import ResetPassword from './Components/Authentication/ResetPassword';
@@ -20,8 +19,6 @@ import ChangePassword from './Components/Authentication/ChangePassword';
 import AllOrders from './Components/allOrders/AllOrders';
 
 function App() {
-  const dispatch = useDispatch();
-  const isLogin = useSelector((state) => state.user.isLogin);
 
   const routers = createBrowserRouter([
     { path: '/', element: <Layout />, children: [

@@ -2,10 +2,10 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { store } from './libs/store';
+import { store } from './libs/store.ts';
 import { Provider } from 'react-redux';
-import ContextCartProvider from './Context/ContextCart';
-import ContextPayProvider from './Context/ContextPay'; 
+import ContextCartProvider from './Context/ContextCart.tsx';
+import ContextPayProvider from './Context/ContextPay.tsx'; 
 
 
 const queryClient = new QueryClient();

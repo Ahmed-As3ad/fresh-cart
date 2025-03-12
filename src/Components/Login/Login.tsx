@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux'; 
-import { setIsLogin } from '../../libs/UserToken/userSlice'; 
+import { setIsLogin } from '../../libs/UserToken/userSlice.ts'; 
 
 export default function Login() {
   const [loading, setLoading] = useState(false);

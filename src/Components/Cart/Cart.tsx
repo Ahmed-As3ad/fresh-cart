@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { ContextCart } from "../../Context/ContextCart.jsx";
+import { ContextCart } from "../../Context/ContextCart.tsx";
 import toast from "react-hot-toast";
-import { ContextPay } from "../../Context/ContextPay";
+import { ContextPay } from "../../Context/ContextPay.tsx";
 import { useFormik } from "formik";
 import { motion } from "framer-motion";
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, MenuItem, Select, InputLabel, FormControl, Box, Typography, IconButton, Grid, Divider } from "@mui/material";
