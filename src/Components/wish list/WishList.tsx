@@ -1,19 +1,9 @@
 import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Button,
-  CircularProgress,
-  Alert,
-  Snackbar,
-} from "@mui/material";
+import { Box, Grid, Card, CardContent, CardMedia, Typography, Button, CircularProgress } from "@mui/material";
 import Loading from "../Loading/Loading";
+import { toast } from "react-hot-toast";
 
 interface Product {
   _id: string;
@@ -62,12 +52,10 @@ const removeFromWishlist = async (productId: string): Promise<void> => {
 };
 
 export default function Wishlist() {
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const [snackbarMessage, setSnackbarMessage] = React.useState("");
   const queryClient = useQueryClient();
 
   const {
-    data: wishlistItems = [], // تأكد أن `wishlistItems` لا تكون `undefined`
+    data: wishlistItems = [],
     isLoading,
     isError,
     error,
@@ -80,18 +68,15 @@ export default function Wishlist() {
     mutationFn: removeFromWishlist,
     onSuccess: (_, productId) => {
       queryClient.invalidateQueries(["wishlist"]);
-
-      // تحديث LocalStorage بعد حذف المنتج
+      
       const storedWishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
       const updatedWishlist = storedWishlist.filter((item: Product) => item._id !== productId);
       localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
-
-      setSnackbarMessage("تم حذف المنتج بنجاح");
-      setOpenSnackbar(true);
+      
+      toast.success("تم حذف المنتج بنجاح");
     },
     onError: (err) => {
-      setSnackbarMessage(err.response?.data?.message || "حدث خطأ أثناء الحذف");
-      setOpenSnackbar(true);
+      toast.error(err.response?.data?.message || "حدث خطأ أثناء الحذف");
     },
   });
 
@@ -102,9 +87,7 @@ export default function Wishlist() {
   if (isError) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", minHeight: "50vh", textAlign: "center" }}>
-        <Alert severity="error">
-          {error instanceof Error ? error.message : "حدث خطأ غير متوقع"}
-        </Alert>
+        <Typography color="error">{error instanceof Error ? error.message : "حدث خطأ غير متوقع"}</Typography>
       </Box>
     );
   }
@@ -155,19 +138,6 @@ export default function Wishlist() {
           </Grid>
         ))}
       </Grid>
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-      >
-        <Alert
-          severity={mutation.isError ? "error" : "success"}
-          onClose={() => setOpenSnackbar(false)}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

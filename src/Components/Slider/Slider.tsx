@@ -7,6 +7,7 @@ import imgSlider2 from "../../assets/slider2.jpg";
 import imgSlider3 from "../../assets/slider3.jpg";
 import imgSliderR1 from "../../assets/img1.jpeg";
 import imgSliderR2 from "../../assets/img2.jpg";
+import toast from "react-hot-toast";
 
 const images = [imgSlider1, imgSlider2, imgSlider3];
 const imageAltTexts = ["Image 1", "Image 2", "Image 3"];
@@ -17,7 +18,7 @@ const SlidHome: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsSmallScreen(window.innerWidth <= 600); 
+      setIsSmallScreen(window.innerWidth <= 600);
     };
 
     handleResize();
@@ -30,6 +31,7 @@ const SlidHome: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
+      toast.success("تم تغيير الصورة تلقائيًا", { position: "top-right" });
     }, 5000);
 
     return () => clearInterval(interval);
@@ -37,10 +39,12 @@ const SlidHome: React.FC = () => {
 
   const handleNext = () => {
     setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
+    toast.success("انتقلت إلى الصورة التالية", { position: "top-right" });
   };
 
   const handlePrevious = () => {
     setCurrentSlide((prevSlide) => (prevSlide - 1 + images.length) % images.length);
+    toast.success("عدت إلى الصورة السابقة", { position: "top-right" });
   };
 
   return (

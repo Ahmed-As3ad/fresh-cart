@@ -12,13 +12,15 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import AdbIcon from "@mui/icons-material/ShoppingCartOutlined";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../libs/store";
+import toast from "react-hot-toast";
 
 const pages = ["home", "cart", "wishlist", "categories", "brands"];
-const settings = ["my orders", "Change Password", "Logout"];
+const settings = ["My Orders", "Change Password", "Logout"];
 
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
@@ -49,6 +51,7 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem("userToken");
     dispatch({ type: "LOGOUT" });
+    toast.success("تم تسجيل الخروج بنجاح!");
     navigate("/login");
   };
 
@@ -66,7 +69,7 @@ export default function Navbar() {
     <AppBar position="static" sx={{ backgroundColor: "black" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <ShoppingCartOutlinedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
 
           <Typography
             variant="h6"
@@ -80,69 +83,33 @@ export default function Navbar() {
               letterSpacing: ".3rem",
               color: "white",
               textDecoration: "none",
-              "&:hover": {
-                cursor: "pointer",
-              },
+              cursor: "pointer",
             }}
           >
             FreshCart
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
+            <IconButton size="large" color="inherit" onClick={handleOpenNavMenu}>
               <MenuIcon />
             </IconButton>
             <Menu
-              id="menu-appbar"
               anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
               open={Boolean(anchorElNav)}
               onClose={() => setAnchorElNav(null)}
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
-                <MenuItem
-                  key={page}
-                  onClick={() => handleCloseNavMenu(page)}
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.2)",
-                    },
-                  }}
-                >
-                  <Link
-                    to={page === "home" ? "/" : `/${page}`}
-                    style={{
-                      textDecoration: "none",
-                      width: "100%",
-                      color: "inherit",
-                    }}
-                  >
-                    <Typography sx={{ textAlign: "center", width: "100%" }}>
-                      {page}
-                    </Typography>
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Link to={page === "home" ? "/" : `/${page}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <Typography>{page}</Typography>
                   </Link>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
 
-          <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <ShoppingCartOutlinedIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
@@ -155,9 +122,7 @@ export default function Navbar() {
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "white",
-              "&:hover": {
-                cursor: "pointer",
-              },
+              cursor: "pointer",
             }}
           >
             FreshCart
@@ -166,15 +131,7 @@ export default function Navbar() {
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "flex-end" }}>
             {isLogin ? (
               pages.map((page) => (
-                <Link
-                  key={page}
-                  to={page === "home" ? "/" : `/${page}`}
-                  style={{
-                    textDecoration: "none",
-                    width: "100%",
-                    color: "inherit",
-                  }}
-                >
+                <Link key={page} to={page === "home" ? "/" : `/${page}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <Button
                     onClick={() => handleCloseNavMenu(page)}
                     sx={{
@@ -191,7 +148,6 @@ export default function Navbar() {
                         height: "2px",
                         backgroundColor: "#FF5722",
                         transform: activePage === page ? "scaleX(1)" : "scaleX(0)",
-                        transformOrigin: "bottom left",
                         transition: "transform 0.3s ease",
                       },
                     }}
@@ -202,17 +158,7 @@ export default function Navbar() {
               ))
             ) : (
               <Link to="/login" style={{ textDecoration: "none", color: "inherit" }}>
-                <Button
-                  onClick={() => handleCloseNavMenu("login")}
-                  sx={{
-                    my: 2,
-                    color: "white",
-                    display: "block",
-                    position: "relative",
-                  }}
-                >
-                  Login
-                </Button>
+                <Button sx={{ my: 2, color: "white" }}>Login</Button>
               </Link>
             )}
           </Box>
@@ -221,23 +167,13 @@ export default function Navbar() {
             {isLogin && (
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt="User Avatar" src="/static/images/avatar/2.jpg" />
                 </IconButton>
               </Tooltip>
             )}
             <Menu
               sx={{ mt: "45px" }}
-              id="menu-appbar"
               anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
@@ -254,7 +190,7 @@ export default function Navbar() {
                     }
                   }}
                 >
-                  <Typography sx={{ textAlign: "center" }}>{setting}</Typography>
+                  <Typography>{setting}</Typography>
                 </MenuItem>
               ))}
             </Menu>

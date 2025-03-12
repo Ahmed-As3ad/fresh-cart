@@ -1,4 +1,4 @@
-import { TextField, Button, Container, Typography, Alert, CircularProgress, Box, InputAdornment } from '@mui/material';
+import { TextField, Button, Container, Typography, CircularProgress, Box, InputAdornment } from '@mui/material';
 import { AccountCircle, Lock } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
@@ -7,10 +7,10 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux'; 
 import { setIsLogin } from '../../libs/UserToken/userSlice.ts'; 
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [msgError, setMsgError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -26,7 +26,6 @@ export default function Login() {
 
   async function handleLogin(values) {
     setLoading(true);
-    setMsgError('');
     try {
       const { data } = await axios.post('https://ecommerce.routemisr.com/api/v1/auth/signin', values);
       
@@ -37,10 +36,13 @@ export default function Login() {
         }));
         
         localStorage.setItem('userToken', data.token);
+        localStorage.setItem('userData', JSON.stringify(data.user));
+
+        toast.success('تم تسجيل الدخول بنجاح!');
         navigate('/');
       }
     } catch (error) {
-      setMsgError(error.response?.data?.message || 'فشل تسجيل الدخول. يرجى التحقق من البيانات والمحاولة مرة أخرى.');
+      toast.error(error.response?.data?.message || 'فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -67,12 +69,6 @@ export default function Login() {
       <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
         تسجيل الدخول
       </Typography>
-
-      {msgError && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {msgError}
-        </Alert>
-      )}
 
       <form onSubmit={formik.handleSubmit}>
         <TextField
@@ -126,32 +122,29 @@ export default function Login() {
           sx={{ 
             py: 1.5,
             fontSize: '1.1rem',
-            '&:disabled': { backgroundColor: 'action.disabled' }
+            opacity: loading ? 0.7 : 1
           }}
         >
-          {loading ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            'تسجيل الدخول'
-          )}
+          {loading ? <CircularProgress size={24} color="inherit" /> : 'تسجيل الدخول'}
         </Button>
 
         <Box textAlign="center" mt={3}>
           <Button 
             color="primary" 
             onClick={() => navigate('/register')}
-            sx={{ textTransform: 'none', fontSize: '0.9rem' }}
+            sx={{ textTransform: 'none', fontSize: '0.9rem', fontWeight: 'bold' }}
           >
             ليس لديك حساب؟ سجل الآن
           </Button>
         </Box>
+        
         <Box textAlign="center">
           <Button 
             color="primary" 
             onClick={() => navigate('/forgot-Password')}
-            sx={{ textTransform: 'none', fontSize: '0.9rem' }}
+            sx={{ textTransform: 'none', fontSize: '0.9rem', fontWeight: 'bold' }}
           >
-            هل نسيت كلمة السر؟ استرجع الحساب الأن
+            هل نسيت كلمة السر؟ استرجع الحساب الآن
           </Button>
         </Box>
       </form>

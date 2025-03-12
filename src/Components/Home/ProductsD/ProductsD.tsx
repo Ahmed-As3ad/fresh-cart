@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
-import { useSnackbar } from 'notistack';
+import toast from 'react-hot-toast';
 import { Box, Button, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -18,65 +18,72 @@ interface Product {
 
 export default function ProductCard({ prod }: { prod: Product }) {
   const { _id, imageCover, category, title, price } = prod;
-  const { enqueueSnackbar } = useSnackbar();
   const queryClient = useQueryClient();
   const [isLiked, setIsLiked] = useState(false);
 
-  const addToWishlist = async (productId: string) => {
-    const token = localStorage.getItem('userToken');
-    if (!token) throw new Error('Authentication required');
-
-    const response = await fetch('https://ecommerce.routemisr.com/api/v1/wishlist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'token': `${token}`,
-      },
-      body: JSON.stringify({ productId: _id }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to add to wishlist');
-    }
-    return response.json();
-  };
-
   useEffect(() => {
-    const storedWishlist = localStorage.getItem('wishlist') ? JSON.parse(localStorage.getItem('wishlist') || '[]') : [];
+    const storedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
     setIsLiked(storedWishlist.some((item: Product) => item._id === _id));
   }, [_id]);
 
+  const addToWishlist = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      if (!token) throw new Error('يجب تسجيل الدخول أولاً');
+
+      const response = await fetch('https://ecommerce.routemisr.com/api/v1/wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          token: `${token}`,
+        },
+        body: JSON.stringify({ productId: _id }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'فشل إضافة المنتج إلى المفضلة');
+      }
+
+      return response.json();
+    } catch (error: any) {
+      throw new Error(error.message || 'حدث خطأ ما');
+    }
+  };
+
   const mutation = useMutation({
     mutationFn: addToWishlist,
-    onSuccess: (data) => {
-      const storedWishlist = localStorage.getItem('wishlist') ? JSON.parse(localStorage.getItem('wishlist') || '[]') : [];
+    onSuccess: () => {
+      const storedWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
       localStorage.setItem('wishlist', JSON.stringify([...storedWishlist, prod]));
-
       setIsLiked(true);
-
       queryClient.invalidateQueries(['wishlist']);
-      enqueueSnackbar('تمت الإضافة إلى المفضلة', { variant: 'success' });
+      toast.success('تمت الإضافة إلى المفضلة');
     },
     onError: (error: Error) => {
-      enqueueSnackbar(error.message, { variant: 'error' });
+      toast.error(error.message);
     },
   });
 
   const handleLikeClick = () => {
     if (!localStorage.getItem('userToken')) {
-      enqueueSnackbar('يجب تسجيل الدخول أولاً', { variant: 'warning' });
+      toast.error('يجب تسجيل الدخول أولاً');
       return;
     }
     if (isLiked) return;
-    mutation.mutate(_id);
+    mutation.mutate();
   };
 
-  const categoryName = category?.name || 'عام';
-  const truncatedTitle = title?.split(' ').slice(0, 3).join(' ') || '';
-
   return (
-    <Card sx={{ borderRadius: '12px', boxShadow: 4, transition: 'transform 0.3s ease', '&:hover': { transform: 'scale(1.02)' }, position: 'relative' }}>
+    <Card
+      sx={{
+        borderRadius: '12px',
+        boxShadow: 4,
+        transition: 'transform 0.3s ease',
+        '&:hover': { transform: 'scale(1.02)' },
+        position: 'relative',
+      }}
+    >
       <IconButton
         sx={{
           position: 'absolute',
@@ -95,12 +102,12 @@ export default function ProductCard({ prod }: { prod: Product }) {
         {isLiked ? <FavoriteIcon fontSize="medium" /> : <FavoriteBorderIcon fontSize="medium" />}
       </IconButton>
 
-      <Link to={`/productdetails/${_id}/${categoryName}`} style={{ textDecoration: 'none' }}>
+      <Link to={`/productdetails/${_id}/${category.name}`} style={{ textDecoration: 'none' }}>
         <CardMedia
           component="img"
           height="200"
           image={imageCover}
-          alt={truncatedTitle}
+          alt={title}
           sx={{
             borderTopLeftRadius: '12px',
             borderTopRightRadius: '12px',
@@ -123,7 +130,7 @@ export default function ProductCard({ prod }: { prod: Product }) {
               fontSize: '0.875rem',
             }}
           >
-            {categoryName}
+            {category.name || 'عام'}
           </Box>
 
           <Typography
@@ -139,7 +146,7 @@ export default function ProductCard({ prod }: { prod: Product }) {
               WebkitBoxOrient: 'vertical',
             }}
           >
-            {truncatedTitle}
+            {title}
           </Typography>
 
           <Typography
@@ -158,7 +165,7 @@ export default function ProductCard({ prod }: { prod: Product }) {
 
       <Button
         component={Link}
-        to={`/productdetails/${_id}/${categoryName}`}
+        to={`/productdetails/${_id}/${category.name}`}
         fullWidth
         sx={{
           backgroundColor: '#FF5722',
@@ -168,7 +175,7 @@ export default function ProductCard({ prod }: { prod: Product }) {
           '&:hover': { bgcolor: '#E64A19' },
         }}
       >
-        More Details
+        تفاصيل المنتج
       </Button>
     </Card>
   );

@@ -1,43 +1,30 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Box, Snackbar } from '@mui/material';
+import { TextField, Button, Typography, Container, Box } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate(); 
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email) {
-      setSnackbarMessage('الرجاء إدخال البريد الإلكتروني');
-      setOpenSnackbar(true);
+      toast.error('الرجاء إدخال البريد الإلكتروني');
       return;
     }
 
     setLoading(true);
     try {
-      const response = await axios.post('https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords', {
-        email,
-      });
+      await axios.post('https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords', { email });
 
-
-      setSnackbarMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني');
-      setOpenSnackbar(true);
-
-      navigate('/verify-code');
+      toast.success('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني');
+      setTimeout(() => navigate('/verify-code'), 1500);
     } catch (error) {
-      setSnackbarMessage('حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى');
-      setOpenSnackbar(true);
+      toast.error('حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى');
     } finally {
       setLoading(false);
     }
@@ -45,6 +32,7 @@ const ForgotPassword = () => {
 
   return (
     <Container maxWidth="xs">
+      <Toaster position="top-center" reverseOrder={false} />
       <Box sx={{ textAlign: 'center', marginTop: 5 }}>
         <Typography variant="h4" gutterBottom>
           نسيت كلمة المرور
@@ -61,7 +49,7 @@ const ForgotPassword = () => {
             fullWidth
             margin="normal"
             value={email}
-            onChange={handleEmailChange}
+            onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
           />
@@ -77,13 +65,6 @@ const ForgotPassword = () => {
             {loading ? 'جاري الإرسال...' : 'إرسال'}
           </Button>
         </form>
-
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenSnackbar(false)}
-          message={snackbarMessage}
-        />
       </Box>
     </Container>
   );

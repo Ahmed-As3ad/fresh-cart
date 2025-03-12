@@ -1,39 +1,31 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Box, Snackbar } from '@mui/material';
+import { TextField, Button, Typography, Container, Box } from '@mui/material';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewPassword(e.target.value);
-  };
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!email || !newPassword) {
-      setSnackbarMessage('الرجاء إدخال البريد الإلكتروني وكلمة المرور الجديدة');
-      setOpenSnackbar(true);
+      toast.error('الرجاء إدخال البريد الإلكتروني وكلمة المرور الجديدة');
       return;
     }
 
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     if (!emailRegex.test(email)) {
-      setSnackbarMessage('البريد الإلكتروني غير صالح');
-      setOpenSnackbar(true);
+      toast.error('البريد الإلكتروني غير صالح');
       return;
     }
-    if (newPassword.length < 6) {
-      setSnackbarMessage('كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل');
-      setOpenSnackbar(true);
+
+    if (newPassword.length < 8) {
+      toast.error('كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل مع أرقام وحروف');
       return;
     }
 
@@ -41,21 +33,13 @@ const ResetPassword = () => {
     try {
       const response = await axios.post(
         'https://ecommerce.routemisr.com/api/v1/auth/resetPassword',
-        {
-          email,
-          newPassword,
-        }
+        { email, newPassword }
       );
-      
-      if (response.status === 200) {
-        setSnackbarMessage('تم إعادة تعيين كلمة المرور بنجاح');
-      } else {
-        setSnackbarMessage('حدث خطأ أثناء إعادة تعيين كلمة المرور. حاول مرة أخرى');
-      }
-      setOpenSnackbar(true);
+
+      toast.success('تم إعادة تعيين كلمة المرور بنجاح');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (error) {
-      setSnackbarMessage('حدث خطأ أثناء إعادة تعيين كلمة المرور. حاول مرة أخرى');
-      setOpenSnackbar(true);
+      toast.error('حدث خطأ أثناء إعادة تعيين كلمة المرور. حاول مرة أخرى');
     } finally {
       setLoading(false);
     }
@@ -63,6 +47,7 @@ const ResetPassword = () => {
 
   return (
     <Container maxWidth="xs">
+      <Toaster position="top-center" reverseOrder={false} />
       <Box sx={{ textAlign: 'center', marginTop: 5 }}>
         <Typography variant="h4" gutterBottom>
           إعادة تعيين كلمة المرور
@@ -79,7 +64,7 @@ const ResetPassword = () => {
             fullWidth
             margin="normal"
             value={email}
-            onChange={handleEmailChange}
+            onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
           />
@@ -91,7 +76,7 @@ const ResetPassword = () => {
             fullWidth
             margin="normal"
             value={newPassword}
-            onChange={handlePasswordChange}
+            onChange={(e) => setNewPassword(e.target.value)}
             required
           />
           
@@ -106,13 +91,6 @@ const ResetPassword = () => {
             {loading ? 'جاري إعادة تعيين كلمة المرور...' : 'إعادة تعيين كلمة المرور'}
           </Button>
         </form>
-
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenSnackbar(false)}
-          message={snackbarMessage}
-        />
       </Box>
     </Container>
   );
