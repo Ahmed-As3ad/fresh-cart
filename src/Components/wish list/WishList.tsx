@@ -30,23 +30,35 @@ const fetchWishlist = async (): Promise<Product[]> => {
   const token = localStorage.getItem("userToken");
   if (!token) throw new Error("الرجاء تسجيل الدخول أولاً");
 
-  const response = await axios.get<ApiResponse>(
-    "https://ecommerce.routemisr.com/api/v1/wishlist",
-    {
-      headers: { token: `${token}` },
+  try {
+    const response = await axios.get<ApiResponse>(
+      "https://ecommerce.routemisr.com/api/v1/wishlist",
+      {
+        headers: { token },
+      }
+    );
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      localStorage.removeItem("userToken");
+      window.location.href = "/login";
     }
-  );
-  return response.data.data;
+    throw new Error("حدث خطأ أثناء جلب قائمة الرغبات");
+  }
 };
 
 const removeFromWishlist = async (productId: string): Promise<void> => {
   const token = localStorage.getItem("userToken");
   if (!token) throw new Error("الرجاء تسجيل الدخول أولاً");
 
-  await axios.delete(
-    `https://ecommerce.routemisr.com/api/v1/wishlist/${productId}`,
-    { headers: { token: `${token}` } }
-  );
+  try {
+    await axios.delete(
+      `https://ecommerce.routemisr.com/api/v1/wishlist/${productId}`,
+      { headers: { token } }
+    );
+  } catch (error) {
+    throw new Error("تعذر حذف المنتج من قائمة الرغبات");
+  }
 };
 
 export default function Wishlist() {
@@ -55,55 +67,41 @@ export default function Wishlist() {
   const queryClient = useQueryClient();
 
   const {
-    data: wishlistItems,
+    data: wishlistItems = [], // تأكد أن `wishlistItems` لا تكون `undefined`
     isLoading,
     isError,
     error,
   } = useQuery<Product[]>({
     queryKey: ["wishlist"],
     queryFn: fetchWishlist,
-    onError: (err: AxiosError) => {
-      if (err.response?.status === 401) {
-        localStorage.removeItem("userToken");
-        window.location.href = "/login";
-      }
-    },
   });
 
   const mutation = useMutation<void, AxiosError, string>({
     mutationFn: removeFromWishlist,
     onSuccess: (_, productId) => {
       queryClient.invalidateQueries(["wishlist"]);
-      const storedWishlist = localStorage.getItem("wishlist")
-        ? JSON.parse(localStorage.getItem("wishlist") || "[]")
-        : [];
 
-      const updatedWishlist = storedWishlist.filter(
-        (item: Product) => item._id !== productId
-      );
-
+      // تحديث LocalStorage بعد حذف المنتج
+      const storedWishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+      const updatedWishlist = storedWishlist.filter((item: Product) => item._id !== productId);
       localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
 
       setSnackbarMessage("تم حذف المنتج بنجاح");
       setOpenSnackbar(true);
     },
     onError: (err) => {
-      setSnackbarMessage(
-        err.response?.data?.message || "حدث خطأ أثناء الحذف"
-      );
+      setSnackbarMessage(err.response?.data?.message || "حدث خطأ أثناء الحذف");
       setOpenSnackbar(true);
     },
   });
 
   if (isLoading) {
-    return (
-     <Loading />
-    );
+    return <Loading />;
   }
 
   if (isError) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", minHeight: "50vh" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", minHeight: "50vh", textAlign: "center" }}>
         <Alert severity="error">
           {error instanceof Error ? error.message : "حدث خطأ غير متوقع"}
         </Alert>
@@ -111,9 +109,9 @@ export default function Wishlist() {
     );
   }
 
-  if (!wishlistItems?.length) {
+  if (wishlistItems.length === 0) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", minHeight: "50vh" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", minHeight: "50vh", textAlign: "center" }}>
         <Typography variant="h6">قائمة الرغبات فارغة</Typography>
       </Box>
     );

@@ -3,11 +3,29 @@ import { Box, Card, CardContent, Typography, Button, Grid, CircularProgress, Div
 import { motion } from "framer-motion";
 import { CheckCircle, Cancel } from '@mui/icons-material';
 
+// تعريف الواجهات لتجنب أخطاء TypeScript
+interface Product {
+  _id: string;
+  product: {
+    title: string;
+  };
+  count: number;
+  price: number;
+}
+
+interface Order {
+  _id: string;
+  status: string;
+  createdAt: string;
+  totalPrice: number;
+  products: Product[];
+}
+
 const AllOrders = () => {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null);
-  const [error, setError] = useState(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const token = localStorage.getItem('userToken');
 
   const fetchUserData = async () => {
@@ -45,10 +63,12 @@ const AllOrders = () => {
         setOrders(data?.data || []);
       } else {
         setError("No orders found");
+        setOrders([]);
       }
       setLoading(false);
     } catch (error) {
       setError("Error fetching orders");
+      setOrders([]);
       setLoading(false);
     }
   };
@@ -83,13 +103,13 @@ const AllOrders = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
           <CircularProgress />
         </Box>
-      ) : orders.length === 0 ? (
+      ) : orders && orders.length === 0 ? (
         <Typography variant="h6" align="center" color="textSecondary">
           You have no orders yet.
         </Typography>
       ) : (
         <Grid container spacing={4}>
-          {orders.map((order) => (
+          {orders?.map((order) => (
             <Grid item xs={12} sm={6} md={4} key={order._id}>
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
