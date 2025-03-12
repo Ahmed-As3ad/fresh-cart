@@ -34,7 +34,7 @@ const ChangePassword = () => {
       await axios.post(
         'https://ecommerce.routemisr.com/api/v1/users/changeMyPassword',
         { currentPassword, password: newPassword, rePassword },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { token: `${token}` } }
       );
 
       toast.success('تم تغيير كلمة المرور بنجاح');
