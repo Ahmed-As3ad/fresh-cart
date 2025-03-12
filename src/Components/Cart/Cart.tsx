@@ -8,7 +8,6 @@ import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRo
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Add, Remove } from '@mui/icons-material';
 
-// 1. تعريف الأنواع بشكل دقيق
 interface Product {
   id: string;
   title: string;
@@ -44,7 +43,6 @@ export default function Cart() {
 
   const { getProductsCart, deleteProductCart, updateProductCart, cart } = cartContext;
 
-  // 2. تحديد نوع productsCart بدقة
   const [productsCart, setProductsCart] = useState<CartData | null>(null);
   const [isCheckOut, setIsCheckOut] = useState(false);
 
@@ -63,7 +61,6 @@ export default function Cart() {
     },
   });
 
-  // 3. تحسين أنواع الدوال
   async function getItems() {
     try {
       const response = await getProductsCart();
@@ -77,13 +74,12 @@ export default function Cart() {
     try {
       await deleteProductCart(productId);
       getItems();
-      toast.success("Product deleted successfully!");
+
     } catch (error) {
       toast.error("Failed to delete product.");
     }
   }
 
-  // 4. إصلاح أنواع المعلمات في updateItems
   async function updateItems(productId: string, count: number) {
     if (count < 1) return;
     try {
@@ -94,7 +90,6 @@ export default function Cart() {
     }
   }
 
-  // 5. إصلاح الرابط واستخدام النصوص القالبية
   async function handleCheckOut(cartId: string, url: string) {
     try {
       const token = localStorage.getItem("userToken");

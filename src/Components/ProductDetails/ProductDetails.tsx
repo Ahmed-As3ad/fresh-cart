@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../libs/Cart/cartSlice";
+import { addToCartAction  } from "../../libs/Cart/cartSlice";
 import {
   Box,
   Button,
@@ -84,15 +84,18 @@ export default function ProductDetails() {
     enabled: !!category,
   });
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) {
       toast.error("حدث خطأ أثناء إضافة المنتج إلى السلة!");
       return;
     }
-    dispatch(addToCart(product));
-    toast.success("تمت إضافة المنتج إلى السلة بنجاح!");
+  
+    try {
+      await dispatch(addToCartAction(product.id)).unwrap();
+    } catch {
+//
+    }
   };
-
   const handleNext = () => {
     const imagesLength = product?.images?.length || 1;
     setCurrentSlide((prev) => (prev + 1) % imagesLength);
@@ -124,7 +127,6 @@ export default function ProductDetails() {
           p: 4,
         }}
       >
-        {/* صورة المنتج */}
         <Card sx={{ maxWidth: 450, boxShadow: 4, borderRadius: 3, overflow: "hidden" }}>
           <Box sx={{ position: "relative", bgcolor: "#f8f9fa" }}>
             <CardMedia
