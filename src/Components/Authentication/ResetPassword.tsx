@@ -31,10 +31,14 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      const response = await axios.put(
-        "https://ecommerce.routemisr.com/api/v1/auth/resetPassword",
-        { email, newPassword }
-      );
+      const response = await axios.put("https://ecommerce.routemisr.com/api/v1/auth/resetPassword", {
+        email,
+        newPassword
+      }, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
 
       if (response.data?.status === "success") {
         toast.success("تم إعادة تعيين كلمة المرور بنجاح");
