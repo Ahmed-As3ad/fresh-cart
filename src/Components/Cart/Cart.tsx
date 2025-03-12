@@ -8,6 +8,32 @@ import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRo
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Add, Remove } from '@mui/icons-material';
 
+
+interface Product {
+  id: string;
+  title: string;
+  imageCover: string;
+  price: number;
+}
+
+interface CartItem {
+  product: Product;
+  count: number;
+  price: number;
+}
+
+interface CartData {
+  _id?: string;
+  data?: {
+    products?: CartItem[];
+    _id?: string;
+    cartOwner?: string;
+    totalCartPrice?: number;
+  };
+  status?: string;
+  numOfCartItems?: number;
+}
+
 export default function Cart() {
   const cartContext = useContext(ContextCart);
   const payContext = useContext(ContextPay);
@@ -62,8 +88,6 @@ export default function Cart() {
     if (count < 1) return;
   
     try {
-      const response = await updateProductCart(productId, count);
-  
       setCart((prevCart) => {
         if (!prevCart?.products) return prevCart;
   
@@ -77,7 +101,7 @@ export default function Cart() {
         return updatedCart;
       });
   
-      setProductsCart((prevProducts) => {
+      setProductsCart((prevProducts: CartData) => {
         if (!prevProducts?.products) return prevProducts;
   
         return {

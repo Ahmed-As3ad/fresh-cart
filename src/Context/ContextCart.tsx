@@ -17,10 +17,16 @@ interface CartItem {
 
 interface CartData {
   _id?: string;
-  products?: CartItem[];
+  data?: {
+    products?: CartItem[];
+    _id?: string;
+    cartOwner?: string;
+    totalCartPrice?: number;
+  };
+  status?: string;
+  numOfCartItems?: number;
 }
-
-interface CartContextType {
+ interface CartContextType {
   cart: CartData;
   setCart: React.Dispatch<React.SetStateAction<CartData>>;
   getCart: () => Promise<void>;
