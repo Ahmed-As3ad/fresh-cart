@@ -6,6 +6,16 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Link } from 'react-router-dom';
 
+interface Product {
+  _id: string;
+  imageCover: string;
+  category: {
+    name: string;
+  };
+  title: string;
+  price: number;
+}
+
 export default function ProductCard({ prod }: { prod: Product }) {
   const { _id, imageCover, category, title, price } = prod;
   const { enqueueSnackbar } = useSnackbar();

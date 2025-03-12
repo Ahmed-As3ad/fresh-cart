@@ -39,15 +39,15 @@ export default function Cart() {
     }
   }
 
-  async function updateItems(productId, count) {
+  async function updateItems(productId: number, count: number) {
     if (count < 1) return;
-    let response = await updateProductCart(productId, count);
+    const response = await updateProductCart(productId, count);
     setProductsCart(response?.data);
   }
 
-  async function handleCheckOut(cartId, url) {
+  async function handleCheckOut(cartId: number, url: string) {
     if (!cartId) return toast.error("Cart ID is missing");
-    let { data } = await checkOutSession(cartId, url, formik.values);
+    const { data } = await checkOutSession(cartId, url, formik.values);
     if (data.status === "success") {
       window.location.href = data.session.url;
     }
@@ -75,59 +75,61 @@ export default function Cart() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {productsCart?.data?.products?.map((product) => (
-              <TableRow key={product?.product?.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                <TableCell align="center">
-                  <img
-                    src={product?.product?.imageCover}
-                    alt={product?.product?.title}
-                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: '8px' }}
-                  />
-                </TableCell>
-                <TableCell align="center" sx={{ color: 'text.primary', fontWeight: 500 }}>
-                  {product?.product?.title}
-                </TableCell>
-                <TableCell align="center">
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => updateItems(product?.product?.id, product.count - 1)}
-                      color="primary"
-                    >
-                      <Remove />
-                    </IconButton>
-                    <TextField
-                      value={product?.count}
-                      disabled
-                      inputProps={{ style: { textAlign: "center" } }}
-                      variant="outlined"
-                      size="small"
-                      sx={{ width: 50 }}
-                    />
-                    <IconButton
-                      size="small"
-                      onClick={() => updateItems(product?.product?.id, product.count + 1)}
-                      color="primary"
-                    >
-                      <Add />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 600 }}>
-                  ${product?.price * product?.count}
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    onClick={() => deleteItem(product?.product?.id)}
-                    color="error"
-                    size="large"
-                    sx={{ padding: 1 }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
+          {productsCart?.data?.products?.filter(Boolean).map((product: any) => (
+  <TableRow key={product?.product?.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
+    <TableCell align="center">
+      <img
+        src={product?.product?.imageCover || "fallback-image.jpg"}
+        alt={product?.product?.title || "Product Image"}
+        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: '8px' }}
+      />
+    </TableCell>
+    <TableCell align="center" sx={{ color: 'text.primary', fontWeight: 500 }}>
+      {product?.product?.title || "No Title"}
+    </TableCell>
+    <TableCell align="center">
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
+        <IconButton
+          size="small"
+          onClick={() => product.count > 1 && updateItems(product?.product?.id, (product.count ?? 1) - 1)}
+          color="primary"
+          disabled={product.count <= 1}
+        >
+          <Remove />
+        </IconButton>
+        <TextField
+          value={product?.count ?? 0}
+          disabled
+          inputProps={{ style: { textAlign: "center" } }}
+          variant="outlined"
+          size="small"
+          sx={{ width: 50 }}
+        />
+        <IconButton
+          size="small"
+          onClick={() => updateItems(product?.product?.id, (product.count ?? 0) + 1)}
+          color="primary"
+        >
+          <Add />
+        </IconButton>
+      </Box>
+    </TableCell>
+    <TableCell align="center" sx={{ fontWeight: 600 }}>
+      ${((product?.price ?? 0) * (product?.count ?? 0)).toFixed(2)}
+    </TableCell>
+    <TableCell align="center">
+      <IconButton
+        onClick={() => deleteItem(product?.product?.id)}
+        color="error"
+        size="large"
+        sx={{ padding: 1 }}
+      >
+        <DeleteIcon />
+      </IconButton>
+    </TableCell>
+  </TableRow>
+))}
+
           </TableBody>
         </Table>
       </TableContainer>
