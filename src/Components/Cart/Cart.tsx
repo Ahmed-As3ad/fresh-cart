@@ -42,7 +42,7 @@ export default function Cart() {
     return <Typography align="center" color="error">Error: Context not available!</Typography>;
   }
 
-  const { getProductsCart, deleteProductCart, updateProductCart, setCart, cart } = cartContext;
+  const { getProductsCart, deleteProductCart, updateProductCart, cart } = cartContext;
 
   // 2. تحديد نوع productsCart بدقة
   const [productsCart, setProductsCart] = useState<CartData | null>(null);

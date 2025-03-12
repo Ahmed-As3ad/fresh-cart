@@ -46,6 +46,14 @@ interface Product {
   price: number;
 }
 
+type RelatedProduct = {
+  id: string;
+  category?: {
+    name?: string;
+  };
+};
+
+
 export default function ProductDetails() {
   const { id, category } = useParams();
   const dispatch = useDispatch<AppDispatch>(); 
@@ -162,7 +170,12 @@ export default function ProductDetails() {
           "&:hover": { transform: "scale(1.05)", boxShadow: "8px 8px 20px rgba(0, 0, 0, 0.2)" },
         }}
       >
-        <Link to={`/productdetails/${relatedProduct.id}/${relatedProduct.category?.name}`} style={{ textDecoration: "none", color: "inherit" }}>
+       <Link
+  to={`/productdetails/${relatedProduct.id}/${relatedProduct.category?.name ?? "uncategorized"}`}
+  style={{ textDecoration: "none", color: "inherit" }}
+>
+  {relatedProduct.category?.name ?? "Unknown Category"}
+</Link>
           <CardMedia
             component="img"
             height="250"
