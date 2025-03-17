@@ -39,7 +39,6 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import HomeIcon from '@mui/icons-material/Home';
 import PhoneIcon from '@mui/icons-material/Phone';
-import LocationCityIcon from '@mui/icons-material/LocationCity';
 import PaymentIcon from '@mui/icons-material/Payment';
 import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -214,17 +213,18 @@ export default function Cart() {
           />
         </Typography>
         
-        {productsCart?.data?.products?.length > 0 && (
-          <Button 
-            startIcon={<DeleteSweepIcon />} 
-            color="error" 
-            variant="text" 
-            size="small"
-            onClick={() => handleClearCart()}
-          >
-            Clear Cart
-          </Button>
-        )}
+        {(productsCart?.data?.products ?? []).length > 0 && (
+  <Button 
+    startIcon={<DeleteSweepIcon />} 
+    color="error" 
+    variant="text" 
+    size="small"
+    onClick={() => handleClearCart()}
+  >
+    Clear Cart
+  </Button>
+)}
+
       </Box>
 
       {!productsCart?.data?.products?.length ? (
@@ -583,11 +583,11 @@ export default function Cart() {
                 <div>
                   <Typography variant="body1">Shipping</Typography>
                   <Typography variant="body1">
-                    {productsCart?.data?.totalCartPrice > 100 ? 'Free' : '$5.99'}
+                    {(productsCart?.data?.totalCartPrice ?? 0) > 100 ? 'Free' : '$5.99'}
                   </Typography>
                 </div>
                 
-                {productsCart?.data?.totalCartPrice > 100 && (
+                {(productsCart?.data?.totalCartPrice ?? 0) > 100 && (
                   <div>
                     <Typography variant="body2" color="success.main">
                       Free shipping discount
@@ -617,7 +617,7 @@ export default function Cart() {
                   size="large"
                   fullWidth
                   startIcon={<CheckCircleIcon />}
-                  onClick={formik.handleSubmit}
+                  onClick={() => formik.handleSubmit()}
                   sx={{ 
                     py: 1.5,
                     boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)'
