@@ -238,7 +238,7 @@ export default function Cart() {
             variant="contained" 
             color="primary" 
             startIcon={<LocalMallIcon />}
-            onClick={() => navigate('/products')}
+            onClick={() => navigate('/')}
           >
             Continue Shopping
           </Button>
